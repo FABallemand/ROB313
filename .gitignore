@@ -1,8 +1,13 @@
+# Private
+private/
+
 # Data
 data/
 
 # Results
-**/train_res/
+*.err
+*.out
+*.log
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

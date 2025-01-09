@@ -100,8 +100,8 @@ class VQVAE(nn.Module):
 
         self._input_size = torch.Size([1, 28, 28])
 
-        self._num_embeddings=512
-        self._embedding_dim=64
+        self._num_embeddings = 512
+        self._embedding_dim = 64
         self._commitment_cost = 0.25
 
         self.reconstruction_criterion = nn.MSELoss()
@@ -151,3 +151,24 @@ class VQVAE(nn.Module):
     def decode(self, z):
         result = self.decoder(z)
         return result
+
+
+class UtilLSTM(nn.Module):
+    def __init__(self, input_size=256, hidden_size=512, num_layers=2, output_size=256, seq_len=5):
+        super(UtilLSTM, self).__init__()
+        self.hidden_size = hidden_size
+        self.seq_len = seq_len
+        
+        self.lstm = nn.LSTM(input_size, hidden_size, num_layers, batch_first=True)
+        self.fc = nn.Linear(hidden_size, output_size)
+    
+    def forward(self, x):
+        # x shape: [batch_size, seq_len, input_size]
+        h0 = torch.zeros(2, x.size(0), self.hidden_size).to(x.device) # Initial hidden state
+        c0 = torch.zeros(2, x.size(0), self.hidden_size).to(x.device) # Initial cell state
+        
+        out, _ = self.lstm(x, (h0, c0)) # LSTM output
+        
+        # Decode the LSTM output back into latent codes
+        out = self.fc(out)
+        return out

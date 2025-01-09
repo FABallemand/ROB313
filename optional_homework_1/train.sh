@@ -14,7 +14,7 @@ mkdir train_res/$SLURM_JOB_ID
 
 eval "$(conda shell.bash hook)"
 
-conda activate balle_reproduction
+conda activate prim_env
 
 set -x
 srun python3 -u train.py train_res/$SLURM_JOB_ID

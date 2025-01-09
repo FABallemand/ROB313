@@ -204,8 +204,8 @@ def main(*args, **kwargs):
     # Training parameters
     checkpoint = None # Last checkpoint to load
 
-    batch_size = 128  # Batch size
-    shuffle = True    # Shuffle
+    batch_size = 64   # Batch size
+    shuffle = False   # Shuffle
     drop_last = False # Drop last batch
     num_workers = 2   # Number of prpocesses
     pin_memory = True # Memory pinning
@@ -245,9 +245,15 @@ def main(*args, **kwargs):
     logging.info("pin_memory = %s", pin_memory)
 
     # Create training, validation and test data loaders
-    train_data_loader = DataLoader(train_dataset, batch_size=64, shuffle=True)
-    validation_data_loader = DataLoader(validation_dataset, batch_size=64, shuffle=False)
-    test_data_loader = DataLoader(test_dataset, batch_size=64, shuffle=False)
+    train_data_loader = DataLoader(train_dataset, batch_size=batch_size,
+                                   shuffle=shuffle, num_workers=num_workers,
+                                   pin_memory=pin_memory)
+    validation_data_loader = DataLoader(validation_dataset, batch_size=batch_size,
+                                        shuffle=shuffle, num_workers=num_workers,
+                                        pin_memory=pin_memory)
+    test_data_loader = DataLoader(test_dataset, batch_size=batch_size,
+                                  shuffle=shuffle, num_workers=num_workers,
+                                  pin_memory=pin_memory)
 
     # Neural network
     logging.info("#### Model ####")
