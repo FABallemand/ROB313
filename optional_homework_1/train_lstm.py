@@ -79,7 +79,7 @@ if __name__ == "__main__":
     lstm = UtilLSTM().to(device)
 
     # Train LSTM model
-    train_lstm(lstm, train_loader, vqvae, epochs=5)
+    train_lstm(lstm, train_loader, vqvae, epochs=1)
 
     # Save LSTM model
-    torch.save(model.state_dict(), "lstm.pth.tar")
+    torch.save(lstm.state_dict(), "lstm.pth.tar")
