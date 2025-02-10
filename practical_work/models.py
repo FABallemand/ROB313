@@ -1,4 +1,6 @@
+import torch
 from torch import nn
+import torchvision.transforms.functional as F
 
 
 class DoubleConv(nn.Module):
@@ -47,23 +49,23 @@ class Up(nn.Module):
         self.conv = DoubleConv(in_ch, out_ch)
 
     def forward(self, x1, x2):
+        # Resize
         if self.bilinear:
-            x1 = F.resize(x1, size=[2*x1.size()[2],2*x1.size()[3]],
-                          interpolation=v2.InterpolationMode.BILINEAR)
+            x1 = F.resize(x1, size=[2*x1.size()[2], 2*x1.size()[3]],
+                          interpolation=F.InterpolationMode.BILINEAR)
         else:
             x1 = self.up(x1)
 
-        # input is CHW
+        # Pad
         diff_y = x2.size()[2] - x1.size()[2]
         diff_x = x2.size()[3] - x1.size()[3]
-
-        x1 = F.pad(x1, [diff_x // 2, diff_x - diff_x // 2,
-                        diff_y // 2, diff_y - diff_y // 2])
+        x1 = F.pad(x1, [diff_x // 2, diff_y // 2, diff_x - diff_x // 2, diff_y - diff_y // 2])
 
         # for padding issues, see
         # https://github.com/HaiyongJiang/U-Net-Pytorch-Unstructured-Buggy/commit/0e854509c2cea854e247a9c615f175f76fbb2e3a
         # https://github.com/xiaopeng-liao/Pytorch-UNet/commit/8ebac70e633bac59fc22bb5195e513d5832fb3bd
 
+        # Concatenate
         x = torch.cat([x2, x1], dim=1)
         return self.conv(x)
 
@@ -118,12 +120,25 @@ class UNetDecoder(nn.Module):
 
 
 class UNet(nn.Module):
-    def __init__(self, classes):
+    def __init__(self, classes=3):
         super().__init__()
         self.encoder = UNetEncoder(classes)
         self.decoder = UNetDecoder(classes)
 
     def forward(self, x):
         encoder_out = self.encoder(x)
-        decoder_out = sel.decoder(*encoder_out)
+        decoder_out = self.decoder(*encoder_out)
         return encoder_out, decoder_out
+
+
+class Classifier(nn.Module):
+    def __init__(self, classes=2):
+        super().__init__()
+        self.encoder = UNetEncoder(classes)
+        self.classifier = nn.Sequential(
+            nn.Linear(28*28, 512),
+            nn.ReLU(),
+            nn.Linear(512, 512),
+            nn.ReLU(),
+            nn.Linear(512, 10),
+        )
