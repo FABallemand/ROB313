@@ -80,7 +80,7 @@ class OutConv(nn.Module):
 
 
 class UNetEncoder(nn.Module):
-    def __init__(self, classes):
+    def __init__(self):
         super().__init__()
         self.inc = InConv(3, 32)
         self.down1 = Down(32, 64)
@@ -122,7 +122,7 @@ class UNetDecoder(nn.Module):
 class UNet(nn.Module):
     def __init__(self, classes=3):
         super().__init__()
-        self.encoder = UNetEncoder(classes)
+        self.encoder = UNetEncoder()
         self.decoder = UNetDecoder(classes)
 
     def forward(self, x):
@@ -134,11 +134,18 @@ class UNet(nn.Module):
 class Classifier(nn.Module):
     def __init__(self, classes=2):
         super().__init__()
-        self.encoder = UNetEncoder(classes)
+        self.encoder = UNetEncoder()
         self.classifier = nn.Sequential(
-            nn.Linear(28*28, 512),
+            nn.Flatten(),
+            nn.Linear(256*21*21, 2048),
             nn.ReLU(),
-            nn.Linear(512, 512),
+            nn.Linear(2048, 128),
             nn.ReLU(),
-            nn.Linear(512, 10),
+            nn.Linear(128, classes),
+            nn.Softmax(),
         )
+
+    def forward(self, x):
+        encoder_out = self.encoder(x)
+        classifier_out = self.classifier(encoder_out[4])
+        return classifier_out
