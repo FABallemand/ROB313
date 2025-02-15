@@ -1,7 +1,6 @@
 import sys
 import os
 import shutil
-import logging
 
 import torch
 import torch.nn as nn
@@ -81,8 +80,6 @@ def train_epoch(
             f" ({100. * i / len(data_loader):.0f}%)]"
             f"{[f'{k} = {v:.6f}' for k, v in loss_dict.items()]}"
         )
-    
-    return train_loss
 
 
 def validation(
@@ -91,11 +88,14 @@ def validation(
     model.eval()
     device = next(model.parameters()).device
 
+    # Crete augmentation function
+    augmentation = RandomTransformation((350,350))
+
     # Init measures
     avg_loss = AverageMeter()
 
     with torch.no_grad():
-        for i, x in enumerate(data_loader):
+        for i, batch in enumerate(data_loader):
             # Load batch
             img, _ = batch
             img = img.to(config.device)
@@ -145,20 +145,17 @@ def train(
     
     best_loss = float("inf") # Best loss
     for epoch in tqdm(range(config.epochs)):
-        logging.info(f"#### EPOCH {epoch:4}/{config.epochs} ####")
+        print(f"#### EPOCH {epoch:4}/{config.epochs} ####")
         print(f"Learning rate: {optimizer.param_groups[0]['lr']}")
         
         # Train for one epoch
-        train_loss = train_epoch(epoch, model, train_loader, criterion, optimizer, config)
+        train_epoch(epoch, model, train_loader, criterion, optimizer, config)
 
         # Validation
-        valid_loss = validation(epoch, model, valid_loader, criterion, config)
-            
-        logging.info(f"Train:      loss={train_loss:.8f}")
-        logging.info(f"Validation: loss={valid_loss:.8f}")
+        loss = validation(epoch, model, valid_loader, criterion, config)
 
         # Learning rate scheduler step
-        lr_scheduler.step(valid_loss)
+        lr_scheduler.step(loss)
 
         # Save model
         is_best = loss < best_loss
@@ -166,7 +163,7 @@ def train(
         checkpoint = {
             "epoch": epoch,
             "state_dict": model.state_dict(),
-            "loss": valid_loss,
+            "loss": loss,
             "optimizer": optimizer.state_dict(),
             "lr_scheduler": lr_scheduler.state_dict(),
         }
@@ -245,11 +242,11 @@ if __name__ == "__main__":
     # Experiment configuration
     config = dict(
         job_id=job_id,
-        model="ResNet",
-        # model="UNet",
+        # model="ResNet",
+        model="UNet",
         epochs=100,
-        batch_size=128,
-        # batch_size=16,
+        # batch_size=128,
+        batch_size=16,
         learning_rate=1e-4,
         lmbda=0.5,
         temperature=0.1,
