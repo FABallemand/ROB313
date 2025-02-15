@@ -54,6 +54,6 @@ class AutoassociativeLoss(nn.Module):
 
     def forward(self, x, z, target):
         mse_loss = self.mse(x, target)
-        ntxent_loss = self.ntxent(z)
+        ntxent_loss, _ = self.ntxent(z)
         loss = self.lmbda * mse_loss + (1 - self.lmbda) * ntxent_loss
         return loss, {"loss": loss, "mse": mse_loss, "ntxent": ntxent_loss}

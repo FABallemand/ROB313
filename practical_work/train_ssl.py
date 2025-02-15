@@ -49,9 +49,9 @@ def train_epoch(
         augmented_img = torch.zeros(
                 (img.shape[0]*2, img.shape[1], img.shape[2], img.shape[3]),
                 device=config.device)
-        for i in range(img.shape[0]):
-            augmented_img[2*i] = img_1[i]
-            augmented_img[2*i+1] = img_2[i]
+        for j in range(img.shape[0]):
+            augmented_img[2*j] = img_1[j]
+            augmented_img[2*j+1] = img_2[j]
 
         # Forward pass
         out = model(augmented_img)
@@ -245,10 +245,11 @@ if __name__ == "__main__":
     # Experiment configuration
     config = dict(
         job_id=job_id,
-        # model="ResNet",
-        model="UNet",
+        model="ResNet",
+        # model="UNet",
         epochs=100,
-        batch_size=32,
+        batch_size=128,
+        # batch_size=16,
         learning_rate=1e-4,
         lmbda=0.5,
         temperature=0.1,

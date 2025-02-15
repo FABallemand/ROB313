@@ -128,7 +128,7 @@ class UNet(nn.Module):
     def forward(self, x):
         encoder_out = self.encoder(x)
         decoder_out = self.decoder(*encoder_out)
-        return {"z_hat": encoder_out, "x_hat": decoder_out}
+        return {"z_hat": encoder_out[4].flatten(start_dim=1), "x_hat": decoder_out}
 
 
 class UNetClassifier(nn.Module):
