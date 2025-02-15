@@ -49,7 +49,8 @@ class WildfirePredictionDataset(Dataset):
     @staticmethod
     def get_dataloaders(
             root_dir="/home/ids/fallemand-24/ROB313/data/wildfire-prediction-dataset",
-            transform=None, batch_size=16, shuffle=True):
+            transform=None, batch_size=16, num_workers=2, shuffle=True,
+            pin_memory=True):
         train_data = WildfirePredictionDataset(root_dir, "train", transform)
         valid_data = WildfirePredictionDataset(root_dir, "valid", transform)
         test_data = WildfirePredictionDataset(root_dir, "test", transform)

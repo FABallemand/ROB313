@@ -15,4 +15,4 @@ eval "$(conda shell.bash hook)"
 conda activate rob_env
 
 set -x
-srun python3 -u train_unet.py $SLURM_JOB_ID
+srun python3 -u train_ssl.py $SLURM_JOB_ID

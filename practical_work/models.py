@@ -128,10 +128,10 @@ class UNet(nn.Module):
     def forward(self, x):
         encoder_out = self.encoder(x)
         decoder_out = self.decoder(*encoder_out)
-        return encoder_out, decoder_out
+        return {"z_hat": encoder_out, "x_hat": decoder_out}
 
 
-class Classifier(nn.Module):
+class UNetClassifier(nn.Module):
     def __init__(self, classes=2):
         super().__init__()
         self.encoder = UNetEncoder()

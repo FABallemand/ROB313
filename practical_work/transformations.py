@@ -22,8 +22,8 @@ class RandomTransformation(object):
         else:
             assert len(output_size) == 2
             self.output_size = output_size
-        self.bk_size = (0.1 * self.output_size[0],
-                            0.1 * self.output_size[1])
+        self.bk_size = (int(0.1 * self.output_size[0]),
+                        int(0.1 * self.output_size[1]))
 
         self.resized_crop = transforms.RandomResizedCrop(self.output_size,
                                                 scale=(0.08, 1.0))
