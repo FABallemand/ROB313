@@ -14,7 +14,7 @@ import wandb
 from datasets import WildfirePredictionDataset
 from transformations import RandomTransformation
 from losses import AverageMeter, NTXentLoss, AutoassociativeLoss
-from models import UNet
+from models import UNetClassifier
 
 
 def save_checkpoint(
@@ -30,36 +30,17 @@ def train_epoch(
     # Set-up
     model.train()
     device = next(model.parameters()).device
-
-    # Crete augmentation function
-    augmentation = RandomTransformation((350,350))
     
     # Iterate over all batches
     for i, batch in enumerate(data_loader):
         # Load batch
-        img, _ = batch
+        img, label = batch
         img = img.to(config.device)
-
-        # Apply augmentation function
-        img_1 = augmentation(img)
-        img_2 = augmentation(img)
-
-        # Recreate batch (for positive pairs)
-        augmented_img = torch.zeros(
-                (img.shape[0]*2, img.shape[1], img.shape[2], img.shape[3]),
-                device=config.device)
-        for j in range(img.shape[0]):
-            augmented_img[2*j] = img_1[j]
-            augmented_img[2*j+1] = img_2[j]
+        label = label.to(config.device)
 
         # Forward pass
-        out = model(augmented_img)
-        if config.model == "ResNet":
-            loss, loss_dict = criterion(out)
-        elif config.model == "UNet":
-            loss, loss_dict = criterion(out["x_hat"], out["z_hat"], augmented_img)
-        else:
-            raise ValueError("Invalid model")
+        out = model(img)
+        loss = criterion(out, label)
 
         # Backward pass
         optimizer.zero_grad()
@@ -69,6 +50,9 @@ def train_epoch(
         optimizer.step()
 
         # Logging
+        loss_dict = {
+            "loss": loss.item(),
+        }
         log_dict = {
             "epoch": epoch
         }
@@ -88,38 +72,19 @@ def validation(
     model.eval()
     device = next(model.parameters()).device
 
-    # Crete augmentation function
-    augmentation = RandomTransformation((350,350))
-
     # Init measures
     avg_loss = AverageMeter()
 
     with torch.no_grad():
         for i, batch in enumerate(data_loader):
             # Load batch
-            img, _ = batch
+            img, label = batch
             img = img.to(config.device)
-
-            # Apply augmentation function
-            img_1 = augmentation(img)
-            img_2 = augmentation(img)
-
-            # Recreate batch (for positive pairs)
-            augmented_img = torch.zeros(
-                (img.shape[0]*2, img.shape[1], img.shape[2], img.shape[3]),
-                device=config.device)
-            for i in range(img.shape[0]):
-                augmented_img[2*i] = img_1[i]
-                augmented_img[2*i+1] = img_2[i]
+            label = label.to(config.device)
 
             # Forward pass
-            out = model(augmented_img)
-            if config.model == "ResNet":
-                loss, loss_dict = criterion(out)
-            elif config.model == "UNet":
-                loss, loss_dict = criterion(out["x_hat"], out["z_hat"], augmented_img)
-            else:
-                raise ValueError("Invalid model")
+            out = model(img)
+            loss = criterion(out, label)
 
             # Update measures
             avg_loss.update(loss)
@@ -178,14 +143,50 @@ def train(
 def make(config):
     # Model
     if config.model == "ResNet":
+        # Create model
         model = resnet18(weights=ResNet18_Weights.DEFAULT)
+
+        if config.encoder_id is not None:
+            # Load SSL model
+            model.fc = nn.Sequential(
+                nn.Linear(512, 256),
+                nn.ReLU(),
+                nn.Linear(256, 128),
+            )
+            checkpoint = torch.load(f"train_res/{config.encoder_id}/checkpoint_best.pth.tar",
+                weights_only=True, map_location=torch.device("cpu"))
+            model.load_state_dict(checkpoint["state_dict"])
+
+        # Encoder freezing
+        if config.encoder_freezing:
+            for param in model.parameters():
+                param.requires_grad = False
+
+        # Modify model for SL
         model.fc = nn.Sequential(
+            nn.Flatten(),
             nn.Linear(512, 256),
             nn.ReLU(),
-            nn.Linear(256, 128),
+            nn.Linear(256, 64),
+            nn.ReLU(),
+            nn.Linear(64, 2),
         )
     elif config.model == "UNet":
-        model = UNet()
+        # Create model for SL
+        model = UNetClassifier(classes=2, freeze_encoder=config.encoder_freezing)
+
+        if config.encoder_id is not None:
+            # Load SSL model
+            unet_ssl = UNet()
+            checkpoint = torch.load(f"train_res/{config.encoder_id}/checkpoint_best.pth.tar",
+                weights_only=True, map_location=torch.device("cpu"))
+            unet_ssl.load_state_dict(checkpoint["state_dict"])
+            model.encoder = unset_ssl.encoder # Change encoder
+
+        # Encoder freezing
+        if config.encoder_freezing:
+            for param in model.encoder.parameters():
+                param.requires_grad = False
     else:
         raise ValueError("Invalid model")
     model = model.to(device)
@@ -199,13 +200,7 @@ def make(config):
     loaders = WildfirePredictionDataset.get_dataloaders(transform=transform, batch_size=config.batch_size)
 
     # Criterion
-    if config.model == "ResNet":
-        criterion = NTXentLoss(temperature=config.temperature)
-    elif config.model == "UNet":
-        criterion = AutoassociativeLoss(lmbda=config.lmbda,
-                                        temperature=config.temperature)
-    else:
-        raise ValueError("Invalid model")
+    criterion = nn.CrossEntropyLoss() # No weight, classes are balanced
 
     # Optimizer
     optimizer = torch.optim.Adam(model.parameters(), lr=config.learning_rate)
@@ -228,7 +223,7 @@ def model_pipeline(config):
         print(model)
 
         # Train model
-        train(model, train_loader, valid_loader_1, criterion, optimizer, lr_scheduler, config)
+        train(model, valid_loader_2, valid_loader_1, criterion, optimizer, lr_scheduler, config)
 
     return model
 
@@ -243,11 +238,12 @@ if __name__ == "__main__":
     config_resnet = dict(
         job_id=job_id,
         model="ResNet",
+        # encoder_id=285136,
+        encoder_id=None,
+        encoder_freezing=True,
         epochs=100,
         batch_size=128,
         learning_rate=1e-4,
-        lmbda=0.5,
-        temperature=0.1,
         device=device,
         save_path=f"train_res/{job_id}"
     )
@@ -255,11 +251,12 @@ if __name__ == "__main__":
     config_unet = dict(
         job_id=job_id,
         model="UNet",
+        encoder_id=285138,
+        # encoder_id=None,
+        encoder_freezing=True,
         epochs=100,
         batch_size=16,
         learning_rate=1e-4,
-        lmbda=0.5,
-        temperature=0.1,
         device=device,
         save_path=f"train_res/{job_id}"
     )

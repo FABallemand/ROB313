@@ -132,9 +132,12 @@ class UNet(nn.Module):
 
 
 class UNetClassifier(nn.Module):
-    def __init__(self, classes=2):
+    def __init__(self, classes=2, freeze_encoder=True):
         super().__init__()
         self.encoder = UNetEncoder()
+        if freeze_encoder:
+            for param in self.encoder.parameters():
+                param.requires_grad = False
         self.classifier = nn.Sequential(
             nn.Flatten(),
             nn.Linear(256*21*21, 2048),
@@ -142,7 +145,6 @@ class UNetClassifier(nn.Module):
             nn.Linear(2048, 128),
             nn.ReLU(),
             nn.Linear(128, classes),
-            nn.Softmax(),
         )
 
     def forward(self, x):

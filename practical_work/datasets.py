@@ -11,6 +11,12 @@ class WildfirePredictionDataset(Dataset):
     Wildfire prediction dataset.
     Inspired by: https://github.com/Silectio/Projet-Computer-Vision/blob/main/loadDataset.py
     """
+     # Label to class dictionary
+    labels_dict = {
+        0: "nowildfire",
+        1: "wildfire"
+    }
+    
     def __init__(
             self, root_dir="/home/ids/fallemand-24/ROB313/data/wildfire-prediction-dataset",
             split="train", transform=None):
@@ -18,12 +24,6 @@ class WildfirePredictionDataset(Dataset):
         self.transform = transform
         self.image_paths = []
         self.labels = []
-
-        # Create label to class dictionary
-        self.labels_dict = {
-            0: "nowildfire",
-            1: "wildfire"
-        }
 
         for cls_idx, cls_name in self.labels_dict.items():
             folder = os.path.join(self.root_dir, cls_name)
