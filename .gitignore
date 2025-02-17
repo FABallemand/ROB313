@@ -11,6 +11,8 @@ data/
 *.txt
 *.pth
 *.pth.tar
+train_res/
+test_res/
 wandb/
 
 # Byte-compiled / optimized / DLL files

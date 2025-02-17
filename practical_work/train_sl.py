@@ -14,7 +14,7 @@ import wandb
 from datasets import WildfirePredictionDataset
 from transformations import RandomTransformation
 from losses import AverageMeter, NTXentLoss, AutoassociativeLoss
-from models import UNetClassifier
+from models import UNet, UNetClassifier
 
 
 def save_checkpoint(
@@ -181,7 +181,7 @@ def make(config):
             checkpoint = torch.load(f"train_res/{config.encoder_id}/checkpoint_best.pth.tar",
                 weights_only=True, map_location=torch.device("cpu"))
             unet_ssl.load_state_dict(checkpoint["state_dict"])
-            model.encoder = unset_ssl.encoder # Change encoder
+            model.encoder = unet_ssl.encoder # Change encoder
 
         # Encoder freezing
         if config.encoder_freezing:
@@ -251,9 +251,9 @@ if __name__ == "__main__":
     config_unet = dict(
         job_id=job_id,
         model="UNet",
-        encoder_id=285138,
-        # encoder_id=None,
-        encoder_freezing=True,
+        # encoder_id=285138,
+        encoder_id=None,
+        encoder_freezing=False,
         epochs=100,
         batch_size=16,
         learning_rate=1e-4,
@@ -261,4 +261,4 @@ if __name__ == "__main__":
         save_path=f"train_res/{job_id}"
     )
     
-    model_pipeline(config_resnet)
+    model_pipeline(config_unet)

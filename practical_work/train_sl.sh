@@ -1,7 +1,7 @@
 #!/bin/bash
 
-#SBATCH --output=train_res/%j/%j_train_kd.out
-#SBATCH --error=train_res/%j/%j_train_kd.err
+#SBATCH --output=train_res/%j/%j_train.out
+#SBATCH --error=train_res/%j/%j_train.err
 #SBATCH --time=99:00:00
 #SBATCH --nodes=1
 #SBATCH --gpus=2
