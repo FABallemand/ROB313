@@ -197,7 +197,8 @@ def make(config):
     ])
 
     # Training, validation and test data loaders
-    loaders = WildfirePredictionDataset.get_dataloaders(transform=transform, batch_size=config.batch_size)
+    loaders = WildfirePredictionDataset.get_dataloaders(transform=transform,
+        batch_size=config.batch_size, max_valid_2=config.max_valid_2)
 
     # Criterion
     criterion = nn.CrossEntropyLoss() # No weight, classes are balanced
@@ -237,11 +238,12 @@ if __name__ == "__main__":
     # Experiment configuration
     config_resnet = dict(
         job_id=job_id,
+        max_valid_2=0.5,
         model="ResNet",
-        # encoder_id=285136,
-        encoder_id=None,
+        encoder_id=285136,
+        # encoder_id=None,
         encoder_freezing=True,
-        epochs=100,
+        epochs=50,
         batch_size=128,
         learning_rate=1e-4,
         device=device,
@@ -250,6 +252,7 @@ if __name__ == "__main__":
 
     config_unet = dict(
         job_id=job_id,
+        max_valid_2=0.5,
         model="UNet",
         # encoder_id=285138,
         encoder_id=None,
@@ -261,4 +264,4 @@ if __name__ == "__main__":
         save_path=f"train_res/{job_id}"
     )
     
-    model_pipeline(config_unet)
+    model_pipeline(config_resnet)

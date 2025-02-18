@@ -50,17 +50,28 @@ class WildfirePredictionDataset(Dataset):
     def get_dataloaders(
             root_dir="/home/ids/fallemand-24/ROB313/data/wildfire-prediction-dataset",
             transform=None, batch_size=16, num_workers=2, shuffle=True,
-            pin_memory=True):
+            pin_memory=True, max_valid_2=None):
         train_data = WildfirePredictionDataset(root_dir, "train", transform)
         valid_data = WildfirePredictionDataset(root_dir, "valid", transform)
         test_data = WildfirePredictionDataset(root_dir, "test", transform)
 
         # Split validation set into two subsets
-        valid_data_1, valid_data_2 = torch.utils.data.random_split(valid_data, [0.5, 0.5])
+        valid_data_1, valid_data_2 = torch.utils.data.random_split(
+            valid_data, [0.5, 0.5])
+        if max_valid_2 is not None:
+            assert isinstance(max_valid_2, float)
+            assert max_valid_2 > 0
+            assert max_valid_2 < 1
+            valid_data_2, _ = torch.utils.data.random_split(
+                valid_data_2, [max_valid_2, 1 - max_valid_2])
 
-        train_loader = DataLoader(train_data, batch_size=batch_size, shuffle=shuffle)
-        valid_loader_1 = DataLoader(valid_data_1, batch_size=batch_size, shuffle=shuffle)
-        valid_loader_2 = DataLoader(valid_data_2, batch_size=batch_size, shuffle=shuffle)
-        test_loader = DataLoader(test_data, batch_size=batch_size, shuffle=shuffle)
+        train_loader = DataLoader(train_data, batch_size=batch_size,
+                                  shuffle=shuffle)
+        valid_loader_1 = DataLoader(valid_data_1, batch_size=batch_size,
+                                    shuffle=shuffle)
+        valid_loader_2 = DataLoader(valid_data_2, batch_size=batch_size,
+                                    shuffle=shuffle)
+        test_loader = DataLoader(test_data, batch_size=batch_size,
+                                 shuffle=shuffle)
 
         return train_loader, valid_loader_1, valid_loader_2, test_loader

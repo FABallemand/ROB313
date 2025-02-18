@@ -104,14 +104,14 @@ def test_unet(sl_id, ssl_id, data_loader, device, save_path):
 
     # UNet SL
     # For baseline comparison
-    unet_sl = Classifier()
+    unet_sl = UNetClassifier()
     checkpoint = torch.load(f"train_res/{sl_id}/checkpoint_best.pth.tar",
         weights_only=True, map_location=torch.device("cpu"))
     unet_sl.load_state_dict(checkpoint["state_dict"])
     unet_sl = unet_sl.eval().to(device)
 
     # UNet SSL
-    unet_ssl = Classifier()
+    unet_ssl = UNetClassifier()
     checkpoint = torch.load(f"train_res/{ssl_id}/checkpoint_best.pth.tar",
         weights_only=True, map_location=torch.device("cpu"))
     unet_ssl.load_state_dict(checkpoint["state_dict"])
@@ -147,10 +147,11 @@ def main(save_path):
     test_resnet(resnet_sl_id, resnet_ssl_id, test_loader, device, save_path)
 
     # Test UNets
-    unet_sl_id = 000
-    unet_ssl_id = 000
-    # test_unet(unet_sl_id, unet_ssl_id, test_loader, device, save_path)
-
+    # unet_sl_id = 286618 # Encoder freezing
+    unet_sl_id = 286619 # No encoder freezing
+    unet_ssl_id = 286611
+    test_unet(unet_sl_id, unet_ssl_id, test_loader, device, save_path)
+    
 
 if __name__ == "__main__":
     job_id = sys.argv[1]
