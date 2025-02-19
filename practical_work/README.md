@@ -28,6 +28,9 @@ Instructions for the practical work are detailed in `instructions.md`.
 - {'job_id': '288502', 'max_valid_2': 0.05, 'model': 'ResNet', 'encoder_id': 285136, 'encoder_freezing': True, 'epochs': 50, 'batch_size': 128, 'learning_rate': 0.0001, 'device': 'cuda', 'save_path': 'train_res/288502'}
 - {'job_id': '288503', 'max_valid_2': 0.05, 'model': 'ResNet', 'encoder_id': None, 'encoder_freezing': True, 'epochs': 50, 'batch_size': 128, 'learning_rate': 0.0001, 'device': 'cuda', 'save_path': 'train_res/288503'}
 
+- {'job_id': '287371', 'max_valid_2': 0.5, 'model': 'ResNet', 'encoder_id': None, 'encoder_freezing': True, 'epochs': 50, 'batch_size': 128, 'learning_rate': 0.0001, 'device': 'cuda', 'save_path': 'train_res/287371'}
+
+
 ### UNet
 - {'job_id': '285138', 'model': 'UNet', 'epochs': 100, 'batch_size': 16, 'learning_rate': 0.0001, 'lmbda': 0.5, 'temperature': 0.1, 'device': 'cuda', 'save_path': 'train_res/285138'}
 - {'job_id': '286611', 'model': 'UNet', 'encoder_id': 285138, 'encoder_freezing': True, 'epochs': 100, 'batch_size': 16, 'learning_rate': 0.0001, 'device': 'cuda', 'save_path': 'train_res/286611'}
