@@ -238,10 +238,10 @@ if __name__ == "__main__":
     # Experiment configuration
     config_resnet = dict(
         job_id=job_id,
-        max_valid_2=0.5,
+        max_valid_2=0.05,
         model="ResNet",
-        encoder_id=285136,
-        # encoder_id=None,
+        # encoder_id=285136,
+        encoder_id=None,
         encoder_freezing=True,
         epochs=50,
         batch_size=128,
@@ -252,12 +252,12 @@ if __name__ == "__main__":
 
     config_unet = dict(
         job_id=job_id,
-        max_valid_2=0.5,
+        max_valid_2=0.1,
         model="UNet",
         # encoder_id=285138,
         encoder_id=None,
         encoder_freezing=False,
-        epochs=100,
+        epochs=50,
         batch_size=16,
         learning_rate=1e-4,
         device=device,

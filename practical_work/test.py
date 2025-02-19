@@ -88,9 +88,9 @@ def test_resnet(sl_id, ssl_id, data_loader, device, save_path):
     sl_metrics = test_model(resnet_sl, data_loader, device)
     ssl_metrics = test_model(resnet_ssl, data_loader, device)
 
-    with open(os.path.join(save_path, "resnet_sl_metrics.json"), "w") as f:
+    with open(os.path.join(save_path, f"resnet_sl_{sl_id}_metrics.json"), "w") as f:
         json.dump(sl_metrics, f)
-    with open(os.path.join(save_path, "resnet_ssl_metrics.json"), "w") as f:
+    with open(os.path.join(save_path, f"resnet_ssl_{ssl_id}_metrics.json"), "w") as f:
         json.dump(ssl_metrics, f)
 
     print(f"SL  [{sl_id}]: {[f'{m} = {v}' for m, v in sl_metrics.items()]}")
@@ -120,9 +120,9 @@ def test_unet(sl_id, ssl_id, data_loader, device, save_path):
     sl_metrics = test_model(unet_sl, data_loader, device)
     ssl_metrics = test_model(unet_ssl, data_loader, device)
 
-    with open(os.path.join(save_path, "unet_sl_metrics.json"), "w") as f:
+    with open(os.path.join(save_path, f"unet_sl_{sl_id}_metrics.json"), "w") as f:
         json.dump(sl_metrics, f)
-    with open(os.path.join(save_path, "unet_ssl_metrics.json"), "w") as f:
+    with open(os.path.join(save_path, f"unet_ssl_{ssl_id}_metrics.json"), "w") as f:
         json.dump(ssl_metrics, f)
 
     print(f"SL  [{sl_id}]: {[f'{m} = {v}' for m, v in sl_metrics.items()]}")
@@ -142,14 +142,35 @@ def main(save_path):
     test_loader = loaders[3]
 
     # Test ResNets
-    resnet_sl_id = 285460
-    resnet_ssl_id = 285444
+    resnet_sl_id = 285460 # All
+    resnet_ssl_id = 285444 # All
+    test_resnet(resnet_sl_id, resnet_ssl_id, test_loader, device, save_path)
+    
+    resnet_sl_id = 287649 # max_valid_2 = 0.5
+    resnet_ssl_id = 287271 # max_valid_2 = 0.5
+    test_resnet(resnet_sl_id, resnet_ssl_id, test_loader, device, save_path)
+
+    resnet_sl_id = 287992 # max_valid_2 = 0.25
+    resnet_ssl_id = 287990 # max_valid_2 = 0.25
+    test_resnet(resnet_sl_id, resnet_ssl_id, test_loader, device, save_path)
+
+    resnet_sl_id = 288476 # max_valid_2 = 0.1
+    resnet_ssl_id = 288475 # max_valid_2 = 0.1
+    test_resnet(resnet_sl_id, resnet_ssl_id, test_loader, device, save_path)
+
+    resnet_sl_id = 288503 # max_valid_2 = 0.05
+    resnet_ssl_id = 288502 # max_valid_2 = 0.05
     test_resnet(resnet_sl_id, resnet_ssl_id, test_loader, device, save_path)
 
     # Test UNets
     # unet_sl_id = 286618 # Encoder freezing
     unet_sl_id = 286619 # No encoder freezing
     unet_ssl_id = 286611
+    test_unet(unet_sl_id, unet_ssl_id, test_loader, device, save_path)
+
+    # unet_sl_id = ... # Encoder freezing
+    unet_sl_id = 288497 # No encoder freezing
+    unet_ssl_id = 288494
     test_unet(unet_sl_id, unet_ssl_id, test_loader, device, save_path)
     
 
