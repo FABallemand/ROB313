@@ -15,6 +15,14 @@ train_res/
 test_res/
 wandb/
 
+# Latex
+*.aux
+*.fdb_latexmk
+*.fls
+*.log
+*.out
+*.pdf
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
