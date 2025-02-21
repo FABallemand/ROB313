@@ -106,7 +106,7 @@ There are different types of SSL. In this work we use:
 \end{itemize}
 
 \section{Method}
-Our work is based on the the SimCLR framework presented \textit{A Simple Framework for Contrastive Learning of Visual Representations}\footnote{\url{https://arxiv.org/abs/2002.05709}}. This framework apply contrastive SSL to images. The goal of the pretext class is thus to minimise the distance between similar images on the latent space while maximising the distance between different images. Figure \ref{simclr}, represents the framework for the pretext task. For each batch of data, each image \(x\) undergo two different transformations in order to create a positive pair. The goal of the neural network is to project these two transformed images close together in the latent space but far from all other images in the batch (considered as negative pairs).
+Our work is based on the the SimCLR framework presented \textit{A Simple Framework for Contrastive Learning of Visual Representations}\footnote{\url{https://arxiv.org/abs/2002.05709}}. This framework apply contrastive SSL to images. The goal of the pretext class is thus to minimise the distance between similar images on the latent space while maximising the distance between different images. Figure \ref{simclr}, represents the framework for the pretext task. For each batch of data, each image \(x\) undergoes two different transformations in order to create a positive pair. The goal of the neural network is to project these two transformed images close together in the latent space but far from all other images in the batch (considered as negative pairs).
 
 \begin{figure}[]
     \centering
