@@ -1,6 +1,6 @@
 # Practical Work: Fire Detection
 
-# Self-supervised Learning - SimCLR
+# Unsupervised and Self-supervised Learning
 
 ## Instructions
 Instructions for the practical work are detailed in `instructions.md`.

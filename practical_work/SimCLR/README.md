@@ -1,6 +1,6 @@
 # Practical Work: Fire Detection
 
-# Self-supervised Learning - SimCLR
+# SimCLR
 
 ## Descriptions
 In this work, we try to reduce the use of labelised data by exploring Self-Supervised Learning (SSL) techniques that can leverage hidden knowledge contained in images without labels. The goal of this study is to assess the performance gain of SSL on downstream tasks that have large amount of unlabeled data available but few labeled data. We apply this technique to wildfire detection through satellite images as analysing satellite images is a domain where SL would require experts to annotate large databases of images to the best of their ability. A process that end up being costly, time consuming and unreliable. Our work is based on the SimCLR SSL framework.
