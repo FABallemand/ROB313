@@ -13,11 +13,12 @@ In this work, we try to reduce the use of labelised data by exploring unsupervis
 ## Repository Organisation
 ```
 practical_work/
-    ├── Project-Computer-Vision/ # VGG-16 Auto-Encoder and GMM
-    ├── SimCLR/                  # SimCLR
-    ├── instructions.md          # Project instructions
-    ├── README.md                # README
-    └── report.pdf               # Project report
+    ├── GMM/            # GMM
+    ├── VGG-16/         # VGG-16 Auto-Encoder
+    ├── SimCLR/         # SimCLR
+    ├── instructions.md # Project instructions
+    ├── README.md       # README
+    └── report.pdf      # Project report
 ```
 
 ## Authors
